@@ -10,7 +10,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [dailyEvent, setDailyEvent] = useState<'normal' | 'rain' | 'drought' | 'pests'>('normal');
   const [pestRemoved, setPestRemoved] = useState(false);
   
-  // Новые состояния для рандомной мыши
+  // Состояния для рандомной мыши
   const [miceCaught, setMiceCaught] = useState(0);
   const [mouseVisible, setMouseVisible] = useState(false);
   const [mousePos, setMousePos] = useState({ top: '50%', left: '50%' });
@@ -46,7 +46,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     }
   }, [hasTree, account, dailyEvent]);
 
-  // СЛОЖНАЯ ЛОГИКА РАНДОМНОЙ МЫШИ (Исправлены типы для Vite)
+  // Логика рандомной мыши
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
     let sessionIntervalId: ReturnType<typeof setInterval>;
@@ -56,27 +56,23 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
       const cooldownUntil = localStorage.getItem('mouseCooldownUntil');
       const now = Date.now();
 
-      // Если кулдаун еще действует
       if (cooldownUntil && now < parseInt(cooldownUntil, 10)) {
         const timeToWait = parseInt(cooldownUntil, 10) - now;
         timeoutId = setTimeout(checkAndRunMouse, timeToWait);
         return;
       }
 
-      // Начинаем сессию (от 5 до 7 появлений)
       let appearances = Math.floor(Math.random() * 3) + 5; 
 
       const showMouse = () => {
         if (appearances <= 0) {
           clearInterval(sessionIntervalId);
-          // Ставим кулдаун на 2 часа (2 * 60 * 60 * 1000 мс)
           const nextTime = Date.now() + 2 * 60 * 60 * 1000;
           localStorage.setItem('mouseCooldownUntil', nextTime.toString());
           timeoutId = setTimeout(checkAndRunMouse, 2 * 60 * 60 * 1000);
           return;
         }
 
-        // Рандомная позиция (отступаем от краев по 15%, чтобы не вылезала за панель)
         const randomTop = Math.floor(Math.random() * 70) + 15;
         const randomLeft = Math.floor(Math.random() * 70) + 15;
         
@@ -84,19 +80,15 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
         setMouseVisible(true);
         appearances--;
 
-        // Прячем мышь через 3 секунды, если юзер не успел кликнуть
         hideTimeoutId = setTimeout(() => {
           setMouseVisible(false);
         }, 3000);
       };
 
-      // Первое появление сразу
       showMouse();
-      // Затем каждые 10 секунд
       sessionIntervalId = setInterval(showMouse, 10000);
     };
 
-    // Запускаем систему только если игрок авторизован и у него есть дерево
     if (hasTree) {
       checkAndRunMouse();
     }
@@ -106,8 +98,9 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
       clearInterval(sessionIntervalId);
       clearTimeout(hideTimeoutId);
     };
-  }, [hasTree]); // Перезапускаем только при изменении наличия дерева
+  }, [hasTree]);
 
+  // Звук для дерева
   const playTreeSound = () => {
     const audio = new Audio('/click.mp3');
     audio.volume = 0.5;
@@ -120,11 +113,14 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     }
   };
 
+  // ОТДЕЛЬНЫЙ ЗВУК ДЛЯ МЫШИ
   const handleMouseCatch = () => {
-    setMouseVisible(false); // Прячем мышь сразу при клике
+    setMouseVisible(false); 
     setMiceCaught(prev => prev + 1);
-    const audio = new Audio('/click.mp3');
-    audio.playbackRate = 2.0; 
+    
+    // Обращаемся к новому файлу
+    const audio = new Audio('/squeak.mp3');
+    audio.volume = 0.6; // Можно настроить громкость
     audio.play().catch(() => {});
   };
 
@@ -179,7 +175,6 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   return (
     <div className={`panel ${dailyEvent === 'rain' ? 'weather-rain' : ''}`} style={{ position: 'relative', overflow: 'hidden' }}>
       
-      {/* Рандомно появляющаяся мышь */}
       {mouseVisible && (
         <div 
           className="pixel-mouse" 
