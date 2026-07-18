@@ -100,26 +100,25 @@ h1, h2, h3 {
   to { background-position: 20px 100px; }
 }
 
-/* Бегающая мышь */
+/* Внезапно появляющаяся мышь */
 .pixel-mouse {
   position: absolute;
-  bottom: 10%;
   font-size: 24px;
   cursor: crosshair;
-  animation: runMouse 15s linear infinite;
   z-index: 10;
   user-select: none;
+  transition: transform 0.1s;
+  /* Добавим легкую анимацию "выпрыгивания" при появлении */
+  animation: popIn 0.2s ease-out;
 }
 
 .pixel-mouse:active {
   transform: scale(0.8);
 }
 
-@keyframes runMouse {
-  0% { left: -10%; transform: scaleX(1); }
-  49% { left: 110%; transform: scaleX(1); }
-  50% { left: 110%; transform: scaleX(-1); } /* Разворачиваем мышь обратно */
-  100% { left: -10%; transform: scaleX(-1); }
+@keyframes popIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
 }
 
 /* Стили для вредителя (Жука) */
