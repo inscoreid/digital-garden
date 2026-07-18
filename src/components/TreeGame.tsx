@@ -7,28 +7,28 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [tokenId, setTokenId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   
-  // Новые состояния для интерактива
   const [dailyEvent, setDailyEvent] = useState<'normal' | 'rain' | 'drought' | 'pests'>('normal');
-  const [miceCaught, setMiceCaught] = useState(0);
   const [pestRemoved, setPestRemoved] = useState(false);
+  
+  // Новые состояния для рандомной мыши
+  const [miceCaught, setMiceCaught] = useState(0);
+  const [mouseVisible, setMouseVisible] = useState(false);
+  const [mousePos, setMousePos] = useState({ top: '50%', left: '50%' });
 
-  // Генерация детерминированного события (одно событие на весь день для конкретного юзера)
   useEffect(() => {
     if (account) {
       const today = new Date().toISOString().split('T')[0];
       const seedString = today + account.toLowerCase();
-      
-      // Простой алгоритм хеширования строки в число
       let hash = 0;
       for (let i = 0; i < seedString.length; i++) {
         hash = seedString.charCodeAt(i) + ((hash << 5) - hash);
       }
       const rand = Math.abs(hash) % 100;
 
-      if (rand < 20) setDailyEvent('rain');         // 20% шанс дождя
-      else if (rand < 40) setDailyEvent('drought'); // 20% шанс засухи
-      else if (rand < 60) setDailyEvent('pests');   // 20% шанс вредителей
-      else setDailyEvent('normal');                 // 40% обычный день
+      if (rand < 20) setDailyEvent('rain');
+      else if (rand < 40) setDailyEvent('drought');
+      else if (rand < 60) setDailyEvent('pests');
+      else setDailyEvent('normal');
     }
   }, [account]);
 
@@ -39,26 +39,80 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
         if (id !== null) {
           getTreeStats(id).then(stats => {
             setLevel(stats.level);
-            // При засухе дерево сохнет быстрее
-            if (dailyEvent === 'drought') {
-               // Для MVP просто симулируем это на фронте. В идеале это нужно проверять в контракте.
-               setIsWatered(stats.isWatered); 
-            } else {
-               setIsWatered(stats.isWatered);
-            }
+            setIsWatered(stats.isWatered); 
           });
         }
       }).catch(console.error);
     }
   }, [hasTree, account, dailyEvent]);
 
-  // Воспроизведение 8-битного звука
+  // СЛОЖНАЯ ЛОГИКА РАНДОМНОЙ МЫШИ
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    let sessionIntervalId: NodeJS.Timeout;
+    let hideTimeoutId: NodeJS.Timeout;
+
+    const checkAndRunMouse = () => {
+      const cooldownUntil = localStorage.getItem('mouseCooldownUntil');
+      const now = Date.now();
+
+      // Если кулдаун еще действует
+      if (cooldownUntil && now < parseInt(cooldownUntil, 10)) {
+        const timeToWait = parseInt(cooldownUntil, 10) - now;
+        timeoutId = setTimeout(checkAndRunMouse, timeToWait);
+        return;
+      }
+
+      // Начинаем сессию (от 5 до 7 появлений)
+      let appearances = Math.floor(Math.random() * 3) + 5; 
+
+      const showMouse = () => {
+        if (appearances <= 0) {
+          clearInterval(sessionIntervalId);
+          // Ставим кулдаун на 2 часа (2 * 60 * 60 * 1000 мс)
+          const nextTime = Date.now() + 2 * 60 * 60 * 1000;
+          localStorage.setItem('mouseCooldownUntil', nextTime.toString());
+          timeoutId = setTimeout(checkAndRunMouse, 2 * 60 * 60 * 1000);
+          return;
+        }
+
+        // Рандомная позиция (отступаем от краев по 15%, чтобы не вылезала за панель)
+        const randomTop = Math.floor(Math.random() * 70) + 15;
+        const randomLeft = Math.floor(Math.random() * 70) + 15;
+        
+        setMousePos({ top: `${randomTop}%`, left: `${randomLeft}%` });
+        setMouseVisible(true);
+        appearances--;
+
+        // Прячем мышь через 3 секунды, если юзер не успел кликнуть
+        hideTimeoutId = setTimeout(() => {
+          setMouseVisible(false);
+        }, 3000);
+      };
+
+      // Первое появление сразу
+      showMouse();
+      // Затем каждые 10 секунд
+      sessionIntervalId = setInterval(showMouse, 10000);
+    };
+
+    // Запускаем систему только если игрок авторизован и у него есть дерево
+    if (hasTree) {
+      checkAndRunMouse();
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(sessionIntervalId);
+      clearTimeout(hideTimeoutId);
+    };
+  }, [hasTree]); // Перезапускаем только при изменении наличия дерева
+
   const playTreeSound = () => {
     const audio = new Audio('/click.mp3');
     audio.volume = 0.5;
-    audio.play().catch(() => {}); // Игнорируем ошибку автоплея браузера
+    audio.play().catch(() => {});
     
-    // Небольшая анимация при клике (визуальный фидбек)
     const treeImg = document.getElementById('pixel-tree-img');
     if (treeImg) {
       treeImg.style.transform = 'scale(0.95)';
@@ -67,14 +121,14 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   };
 
   const handleMouseCatch = () => {
+    setMouseVisible(false); // Прячем мышь сразу при клике
     setMiceCaught(prev => prev + 1);
     const audio = new Audio('/click.mp3');
-    audio.playbackRate = 2.0; // Делаем звук писклявым
+    audio.playbackRate = 2.0; 
     audio.play().catch(() => {});
   };
 
   const handleRemovePest = () => {
-    // В будущем здесь будет вызов бесплатной транзакции контракта `removePest()`
     setPestRemoved(true);
     alert("Вы прогнали вредителя!");
   };
@@ -92,7 +146,6 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     if (tokenId === null) return;
     try {
       setLoading(true);
-      // Если дождь - отправляем 0 ETH (Потребует апдейта смарт-контракта!)
       const isRain = dailyEvent === 'rain';
       await waterTree(account, tokenId, isRain); 
       alert("Дерево полито!");
@@ -126,12 +179,19 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   return (
     <div className={`panel ${dailyEvent === 'rain' ? 'weather-rain' : ''}`} style={{ position: 'relative', overflow: 'hidden' }}>
       
-      {/* Бегающая мышь на фоне */}
-      <div className="pixel-mouse" onClick={handleMouseCatch}>🐭</div>
+      {/* Рандомно появляющаяся мышь */}
+      {mouseVisible && (
+        <div 
+          className="pixel-mouse" 
+          onClick={handleMouseCatch}
+          style={{ top: mousePos.top, left: mousePos.left }}
+        >
+          🐭
+        </div>
+      )}
 
       <h2>Ваше Дерево (ID: {tokenId})</h2>
       
-      {/* Панель инфо о событиях */}
       <div style={{ minHeight: '30px', color: '#eab308' }}>
         {dailyEvent === 'rain' && '🌧️ ИДЕТ ДОЖДЬ! ПОЛИВ БЕСПЛАТНЫЙ!'}
         {dailyEvent === 'drought' && '☀️ ЗАСУХА! ДЕРЕВО СОХНЕТ БЫСТРЕЕ!'}
@@ -152,7 +212,6 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
                 imageRendering: 'pixelated', cursor: 'pointer', transition: 'transform 0.1s'
               }} 
             />
-            {/* Рендерим жука поверх дерева, если выпало событие */}
             {dailyEvent === 'pests' && !pestRemoved && (
                <div className="pest-bug" title="Вредитель">🐛</div>
             )}
@@ -167,7 +226,6 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
         {isWatered ? "ПОЛИТО" : "ХОЧЕТ ПИТЬ"}
       </span></p>
       
-      {/* Логика кнопок в зависимости от погоды */}
       {!isWatered && dailyEvent === 'pests' && !pestRemoved ? (
         <button className="pixel-btn" onClick={handleRemovePest} style={{ backgroundColor: '#ef4444' }}>
           Прогнать жука!
