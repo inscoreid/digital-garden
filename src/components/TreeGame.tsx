@@ -53,7 +53,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
       <div className="panel">
         <h2>У вас нет дерева</h2>
         <button className="pixel-btn" onClick={handleMint} disabled={loading}>
-          {loading ? 'Ожидание...' : 'Сминтить (0.005 ETH)'}
+          {loading ? 'Ожидание...' : 'Посадить дерево (Бесплатно)'}
         </button>
       </div>
     );
@@ -70,7 +70,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
       
       {!isWatered && (
         <button className="pixel-btn" onClick={handleWater} disabled={loading}>
-          {loading ? 'Поливаем...' : 'Полить (Бесплатно)'}
+          {loading ? 'Поливаем...' : 'Полить (0.000054 ETH)'}
         </button>
       )}
     </div>
