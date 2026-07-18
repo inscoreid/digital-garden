@@ -7,12 +7,13 @@ export const BASE_CHAIN_ID = '0x2105'; // 8453 в hex
 // Селекторы функций (первые 4 байта keccak256 от названия функции)
 // Важно: замени кастомные селекторы на реальные из твоего смарт-контракта, если они отличаются!
 const SELECTORS = {
-  balanceOf: '0x70a08231', // balanceOf(address)
-  isWatered: '0x88494f61', // ЗАМЕНИТЬ: isWatered() (пример: 0x88494f61)
-  level: '0x2287eb19',     // ЗАМЕНИТЬ: level() (пример: 0x2287eb19)
-  getWinner: '0x17c60de1', // ЗАМЕНИТЬ: getWinner() (пример: 0x17c60de1)
-  mint: '0x1249c58b',      // ЗАМЕНИТЬ: mint()
-  claimPrize: '0x... '     // ЗАМЕНИТЬ: claimPrize()
+  balanceOf: '0x70a08231',       // balanceOf(address)
+  mintTree: '0x2a3e0fae',        // mintTree()
+  waterTree: '0x6a1f26ee',       // waterTree(uint256)
+  getTreeLevel: '0x15312389',    // getTreeLevel(uint256)
+  trees: '0x9bf4e488',           // trees(uint256)
+  enterRaffle: '0x7a2dcefb',     // enterRaffle(uint256)
+  getFirstTreeId: '0x05a0d33c',  // getFirstTreeId(address)
 };
 
 export const getProvider = () => {
