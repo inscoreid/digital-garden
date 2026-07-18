@@ -6,7 +6,6 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [isWatered, setIsWatered] = useState<boolean>(false);
   const [tokenId, setTokenId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [treeClicks, setTreeClicks] = useState(0);
   
   const [dailyEvent, setDailyEvent] = useState<'normal' | 'rain' | 'drought' | 'pests'>('normal');
   const [pestRemoved, setPestRemoved] = useState(false);
@@ -15,6 +14,9 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [miceCaught, setMiceCaught] = useState(0);
   const [mouseVisible, setMouseVisible] = useState(false);
   const [mousePos, setMousePos] = useState({ top: '50%', left: '50%' });
+
+  // Состояние для кликов по дереву
+  const [treeClicks, setTreeClicks] = useState(0);
 
   useEffect(() => {
     if (account) {
@@ -47,7 +49,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     }
   }, [hasTree, account, dailyEvent]);
 
-  // Логика рандомной мыши
+  // Логика рандомной мыши (с 10 минутным кулдауном)
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
     let sessionIntervalId: ReturnType<typeof setInterval>;
@@ -68,7 +70,8 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
       const showMouse = () => {
         if (appearances <= 0) {
           clearInterval(sessionIntervalId);
-          const nextTime = Date.now() + 2 * 60 * 60 * 1000;
+          // Ставим кулдаун на 10 минут
+          const nextTime = Date.now() + 10 * 60 * 1000;
           localStorage.setItem('mouseCooldownUntil', nextTime.toString());
           timeoutId = setTimeout(checkAndRunMouse, 10 * 60 * 1000);
           return;
@@ -101,12 +104,11 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     };
   }, [hasTree]);
 
-  // Звук для дерева
-const playTreeSound = () => {
+  // Звук для дерева со 2-го раза и далее каждые 3
+  const playTreeSound = () => {
     setTreeClicks(prev => {
       const newCount = prev + 1;
       
-      // Формула (newCount + 1) % 3 === 0 идеально срабатывает на 2, 5, 8, 11 и т.д.
       if ((newCount + 1) % 3 === 0) {
         const audio = new Audio('/click.mp3');
         audio.volume = 0.5;
@@ -115,7 +117,6 @@ const playTreeSound = () => {
       return newCount;
     });
     
-    // Анимация дерева остается при каждом клике
     const treeImg = document.getElementById('pixel-tree-img');
     if (treeImg) {
       treeImg.style.transform = 'scale(0.95)';
@@ -123,14 +124,13 @@ const playTreeSound = () => {
     }
   };
 
-  // ОТДЕЛЬНЫЙ ЗВУК ДЛЯ МЫШИ
+  // Отдельный звук для мыши
   const handleMouseCatch = () => {
     setMouseVisible(false); 
     setMiceCaught(prev => prev + 1);
     
-    // Обращаемся к новому файлу
     const audio = new Audio('/squeak.mp3');
-    audio.volume = 0.6; // Можно настроить громкость
+    audio.volume = 0.6;
     audio.play().catch(() => {});
   };
 
