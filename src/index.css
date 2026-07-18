@@ -78,4 +78,55 @@ h1, h2, h3 {
   padding: 20px;
   margin: 20px 0;
   box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8); /* Тень делаем темнее */
+  /* Эффект дождя */
+.weather-rain {
+  position: relative;
+}
+.weather-rain::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="1" height="3" fill="rgba(255,255,255,0.3)"/></svg>');
+  animation: rainDrop 0.5s linear infinite;
+  pointer-events: none; /* Чтобы дождь не мешал кликать */
+}
+@keyframes rainDrop {
+  from { background-position: 0 0; }
+  to { background-position: 20px 100px; }
+}
+
+/* Бегающая мышь */
+.pixel-mouse {
+  position: absolute;
+  bottom: 10%;
+  font-size: 24px;
+  cursor: crosshair;
+  animation: runMouse 15s linear infinite;
+  z-index: 10;
+  user-select: none;
+}
+.pixel-mouse:active {
+  transform: scale(0.8);
+}
+@keyframes runMouse {
+  0% { left: -10%; transform: scaleX(1); }
+  49% { left: 110%; transform: scaleX(1); }
+  50% { left: 110%; transform: scaleX(-1); } /* Разворачиваем мышь обратно */
+  100% { left: -10%; transform: scaleX(-1); }
+}
+
+/* Стили для вредителя (Жука) */
+.pest-bug {
+  position: absolute;
+  top: 40%;
+  left: 55%;
+  font-size: 32px;
+  animation: wiggle 1s ease-in-out infinite;
+  cursor: pointer;
+  z-index: 5;
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
 }
