@@ -86,15 +86,11 @@ h1, h2, h3 {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="1" height="3" fill="rgba(255,255,255,0.3)"/></svg>');
+  /* Безопасно закодированный SVG для Vercel */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Crect width='1' height='3' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E");
   animation: rainDrop 0.5s linear infinite;
-  pointer-events: none; /* Чтобы дождь не мешал кликать */
+  pointer-events: none;
 }
-@keyframes rainDrop {
-  from { background-position: 0 0; }
-  to { background-position: 20px 100px; }
-}
-
 /* Бегающая мышь */
 .pixel-mouse {
   position: absolute;
