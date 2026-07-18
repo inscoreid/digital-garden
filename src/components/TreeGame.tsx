@@ -16,7 +16,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [mousePos, setMousePos] = useState({ top: '50%', left: '50%' });
 
   // Состояние для кликов по дереву
-  const [treeClicks, setTreeClicks] = useState(0);
+const [, setTreeClicks] = useState(0);
 
   useEffect(() => {
     if (account) {
