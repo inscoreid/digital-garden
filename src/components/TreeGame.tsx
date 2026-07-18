@@ -15,12 +15,12 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [mouseVisible, setMouseVisible] = useState(false);
   const [mousePos, setMousePos] = useState({ top: '50%', left: '50%' });
 
-  // Состояние для кликов по дереву
-const [clickState, setClickState] = useState({
+  // Состояние для кликов по дереву (исправлена ошибка TS6133)
+  const [, setClickState] = useState({
     count: 0,
-    target: Math.floor(Math.random() * 10) + 1 // Случайное число от 1 до 10
+    target: Math.floor(Math.random() * 10) + 1
   });
-  
+
   useEffect(() => {
     if (account) {
       const today = new Date().toISOString().split('T')[0];
@@ -107,36 +107,30 @@ const [clickState, setClickState] = useState({
     };
   }, [hasTree]);
 
-  // Звук для дерева со 2-го раза и далее каждые 3
-// Звук для дерева: два обычных, затем один редкий
   // Полностью рандомный звук (от 1 до 10 кликов)
   const playTreeSound = () => {
     setClickState(prev => {
       const newCount = prev.count + 1;
       
-      // Если сделали нужное случайное количество кликов
       if (newCount >= prev.target) {
-        
-        // Бросаем виртуальную монетку (шанс 50/50)
+        // Выбираем звук: 50% обычный, 50% бонусный
         const isBonus = Math.random() > 0.5; 
         
-        // Выбираем файл на основе броска монетки
         const audio = new Audio(isBonus ? '/bonus.mp3' : '/click.mp3');
         audio.volume = 0.5;
         audio.play().catch(() => {});
 
-        // Сбрасываем счетчик и сразу задаем новую случайную цель (от 1 до 10)
+        // Сбрасываем и загадываем новую цель (от 1 до 10)
         return {
           count: 0,
           target: Math.floor(Math.random() * 10) + 1
         };
       }
       
-      // Если цель еще не достигнута, просто запоминаем новый клик
       return { ...prev, count: newCount };
     });
     
-    // Анимация дерева (сжатие) остается при каждом клике
+    // Анимация дерева
     const treeImg = document.getElementById('pixel-tree-img');
     if (treeImg) {
       treeImg.style.transform = 'scale(0.95)';
@@ -205,6 +199,7 @@ const [clickState, setClickState] = useState({
   return (
     <div className={`panel ${dailyEvent === 'rain' ? 'weather-rain' : ''}`} style={{ position: 'relative', overflow: 'hidden' }}>
       
+      {/* Рандомно появляющаяся мышь */}
       {mouseVisible && (
         <div 
           className="pixel-mouse" 
