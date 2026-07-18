@@ -1,7 +1,7 @@
 // src/utils/web3Utils.ts
 
-export const TREE_CONTRACT = '0x9BA07093319b40355da00bE51a2B89885320d14B';
-export const BANK_CONTRACT = '0x509Df9510D04fD058C5376EA6Bc68517A6105ADF';
+export const TREE_CONTRACT = '0x53E0881E01100C21D3E7990BaA45E5A24B195FA3';
+export const BANK_CONTRACT = '0xADB2c80c3f3aF788Ea379787F25ac5996c0A9660';
 export const BASE_CHAIN_ID = '0x2105'; // 8453 в hex
 
 // Селекторы функций (первые 4 байта keccak256 от названия функции)
