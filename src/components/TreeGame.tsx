@@ -199,15 +199,22 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   return (
     <div className={`panel ${dailyEvent === 'rain' ? 'weather-rain' : ''}`} style={{ position: 'relative', overflow: 'hidden' }}>
       
-      {/* Рандомно появляющаяся мышь */}
+{/* Рандомно появляющаяся мышь (Картинка) */}
       {mouseVisible && (
-        <div 
+        <img 
+          src="/mouse.png"
+          alt="Поймай меня!"
           className="pixel-mouse" 
           onClick={handleMouseCatch}
-          style={{ top: mousePos.top, left: mousePos.left }}
-        >
-          🐭
-        </div>
+          style={{ 
+            top: mousePos.top, 
+            left: mousePos.left,
+            width: '48px', /* Размер мыши, можешь сделать больше/меньше */
+            height: 'auto',
+            imageRendering: 'pixelated',
+            cursor: 'crosshair'
+          }}
+        />
       )}
 
       <h2>Ваше Дерево (ID: {tokenId})</h2>
@@ -219,7 +226,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
         {miceCaught > 0 && <span style={{ float: 'right', color: '#a855f7' }}>Мышей поймано: {miceCaught}</span>}
       </div>
 
-      <div style={{ margin: '20px auto', position: 'relative', width: '150px', height: '150px' }}>
+      <div style={{ margin: '20px auto', position: 'relative', width: '256px', height: '256px' }}>
         {level > 0 ? (
           <>
             <img 
