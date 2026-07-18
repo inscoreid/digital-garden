@@ -58,7 +58,7 @@ export const BankPanel = ({ account }: { account: string }) => {
       
       <div style={{ marginTop: '20px' }}>
         <button className="pixel-btn" onClick={handleEnterRaffle} disabled={loading} style={{ backgroundColor: '#eab308' }}>
-          {loading ? 'Ожидание...' : 'Участвовать (0.001 ETH)'}
+          {loading ? 'Ожидание...' : 'Участвовать (Бесплатно)'}
         </button>
       </div>
     </div>
