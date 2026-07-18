@@ -105,10 +105,10 @@ export const mintTree = async (from: string) => {
 };
 
 // ПОЛИВ СТОИТ 0.000054 ETH
-export const waterTree = async (from: string, tokenId: number) => {
+export const waterTree = async (from: string, tokenId: number, isRain: boolean = false) => {
   const provider = getProvider();
   const data = SELECTORS.waterTree + tokenId.toString(16).padStart(64, '0');
-  const valueHex = '0x311CA9417800'; // 0.000054 ETH
+  const valueHex = isRain ? '0x0' : '0x311CA9417800'; // 0 ETH или 0.000054 ETH
   
   return await provider.request({
     method: 'eth_sendTransaction',
