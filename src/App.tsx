@@ -8,6 +8,9 @@ function App() {
   const [account, setAccount] = useState<string | null>(null);
   const [wrongNetwork, setWrongNetwork] = useState(false);
   const [hasTree, setHasTree] = useState(false);
+  
+  // Состояние для отображения правил (открыты по умолчанию, если кошелек не подключен)
+  const [showRules, setShowRules] = useState(true);
 
   const checkState = async (addr: string) => {
     const provider = getProvider();
@@ -22,6 +25,7 @@ function App() {
     try {
       const balance = await getTreeBalance(addr);
       setHasTree(balance > 0);
+      if (balance > 0) setShowRules(false); // Прячем правила, если юзер уже играет
     } catch (e) {
       console.error("Ошибка получения NFT", e);
     }
@@ -47,6 +51,7 @@ function App() {
           checkState(accounts[0]);
         } else {
           setAccount(null);
+          setShowRules(true);
         }
       });
       window.ethereum.on('chainChanged', () => window.location.reload());
@@ -55,15 +60,45 @@ function App() {
 
   return (
     <div>
-      <h1>Base Pixel Tree 🌳</h1>
+      {/* Шапка сайта */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
+        <h1 style={{ margin: 0, fontSize: '1.2rem', textAlign: 'left' }}>Base Pixel Tree 🌳</h1>
+        
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            className="pixel-btn" 
+            style={{ padding: '10px', fontSize: '10px', backgroundColor: '#3b82f6', color: '#fff' }} 
+            onClick={() => setShowRules(!showRules)}
+          >
+            📖 Правила
+          </button>
+          
+          <a 
+            href="https://x.com/IncoreID" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="pixel-btn" 
+            style={{ padding: '10px', fontSize: '10px', textDecoration: 'none', backgroundColor: '#000', color: '#fff', borderColor: '#333' }}
+          >
+            🐦 X (Twitter)
+          </a>
+        </div>
+      </header>
       
+      {/* Отображение правил */}
+      {showRules && (
+        <div style={{ marginBottom: '30px' }}>
+          <Welcome onClose={() => setShowRules(false)} />
+        </div>
+      )}
+
+      {/* Основная логика */}
       {!account ? (
-        <>
-          <Welcome />
-          <button className="pixel-btn" onClick={connectWallet} style={{ fontSize: '18px', padding: '20px' }}>
+        <div style={{ marginTop: '20px' }}>
+          <button className="pixel-btn" onClick={connectWallet} style={{ fontSize: '18px', padding: '20px', width: '100%' }}>
             Подключить кошелек
           </button>
-        </>
+        </div>
       ) : wrongNetwork ? (
         <div className="panel" style={{ borderColor: '#ef4444' }}>
           <h2 style={{ color: '#ef4444' }}>Неверная сеть</h2>
@@ -72,7 +107,7 @@ function App() {
         </div>
       ) : (
         <>
-          <p style={{ fontSize: '12px', color: '#888' }}>
+          <p style={{ fontSize: '12px', color: '#888', textAlign: 'right' }}>
             Кошелек: {account.slice(0, 6)}...{account.slice(-4)}
           </p>
           <TreeGame account={account} hasTree={hasTree} onUpdate={() => checkState(account)} />
