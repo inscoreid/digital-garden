@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
-import { getBankBalance, fetchWinner, claimRafflePrize } from '../utils/web3Utils';
+import { getBankBalance, enterRaffle, getUserTreeId } from '../utils/web3Utils';
 
 export const BankPanel = ({ account }: { account: string }) => {
   const [balance, setBalance] = useState('0.0000');
-  const [winner, setWinner] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadBank = async () => {
       try {
         setBalance(await getBankBalance());
-        setWinner(await fetchWinner());
       } catch (e) {
         console.error("Ошибка чтения банка", e);
       }
@@ -34,16 +33,22 @@ export const BankPanel = ({ account }: { account: string }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleClaim = async () => {
+  const handleEnterRaffle = async () => {
     try {
-      await claimRafflePrize(account);
-      alert("Приз запрошен!");
+      setLoading(true);
+      const tokenId = await getUserTreeId(account);
+      if (tokenId === null) {
+        alert("Сначала посадите дерево!");
+        return;
+      }
+      await enterRaffle(account, tokenId);
+      alert("Вы участвуете в розыгрыше!");
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const isWinner = winner?.toLowerCase() === account.toLowerCase();
 
   return (
     <div className="panel" style={{ borderColor: '#eab308' }}>
@@ -51,14 +56,11 @@ export const BankPanel = ({ account }: { account: string }) => {
       <p style={{ fontSize: '1.5rem' }}>{balance} ETH</p>
       <p>До розыгрыша: <strong>{timeLeft}</strong></p>
       
-      {isWinner && (
-        <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#422006' }}>
-          <h3 style={{ color: '#facc15' }}>ВЫ ПОБЕДИЛИ!</h3>
-          <button className="pixel-btn" onClick={handleClaim} style={{ backgroundColor: '#eab308' }}>
-            Забрать выигрыш
-          </button>
-        </div>
-      )}
+      <div style={{ marginTop: '20px' }}>
+        <button className="pixel-btn" onClick={handleEnterRaffle} disabled={loading} style={{ backgroundColor: '#eab308' }}>
+          {loading ? 'Ожидание...' : 'Участвовать (0.001 ETH)'}
+        </button>
+      </div>
     </div>
   );
 };
