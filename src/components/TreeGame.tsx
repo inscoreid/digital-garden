@@ -6,6 +6,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [isWatered, setIsWatered] = useState<boolean>(false);
   const [tokenId, setTokenId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [treeClicks, setTreeClicks] = useState(0);
   
   const [dailyEvent, setDailyEvent] = useState<'normal' | 'rain' | 'drought' | 'pests'>('normal');
   const [pestRemoved, setPestRemoved] = useState(false);
@@ -101,11 +102,20 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   }, [hasTree]);
 
   // Звук для дерева
-  const playTreeSound = () => {
-    const audio = new Audio('/click.mp3');
-    audio.volume = 0.5;
-    audio.play().catch(() => {});
+const playTreeSound = () => {
+    setTreeClicks(prev => {
+      const newCount = prev + 1;
+      
+      // Формула (newCount + 1) % 3 === 0 идеально срабатывает на 2, 5, 8, 11 и т.д.
+      if ((newCount + 1) % 3 === 0) {
+        const audio = new Audio('/click.mp3');
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+      }
+      return newCount;
+    });
     
+    // Анимация дерева остается при каждом клике
     const treeImg = document.getElementById('pixel-tree-img');
     if (treeImg) {
       treeImg.style.transform = 'scale(0.95)';
