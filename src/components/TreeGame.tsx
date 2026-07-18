@@ -48,6 +48,18 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     }
   };
 
+  // Новая функция для отображения картинок 7 уровней
+  const getTreeImage = (currentLevel: number) => {
+    if (currentLevel === 0) return ''; 
+    if (currentLevel === 1) return '/tree-1.png';
+    if (currentLevel === 2) return '/tree-2.png';
+    if (currentLevel === 3) return '/tree-3.png';
+    if (currentLevel === 4) return '/tree-4.png';
+    if (currentLevel === 5) return '/tree-5.png';
+    if (currentLevel === 6) return '/tree-6.png';
+    return '/tree-7.png'; // Максимальный 7 уровень
+  };
+
   if (!hasTree) {
     return (
       <div className="panel">
@@ -62,7 +74,25 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   return (
     <div className="panel">
       <h2>Ваше Дерево (ID: {tokenId})</h2>
-      <p style={{ fontSize: '2rem' }}>🌲</p>
+      
+      {/* Новый блок вывода картинки дерева */}
+      <div style={{ margin: '20px 0', minHeight: '150px' }}>
+        {level > 0 ? (
+          <img 
+            src={getTreeImage(level)} 
+            alt={`Tree Level ${level}`} 
+            style={{ 
+              width: '150px', 
+              height: '150px', 
+              objectFit: 'contain',
+              imageRendering: 'pixelated' /* Важно: сохраняет пиксели четкими */
+            }} 
+          />
+        ) : (
+          <p style={{ fontSize: '2rem' }}>🌲</p> /* Временная заглушка, пока грузится уровень */
+        )}
+      </div>
+
       <p>Уровень: <strong>{level}</strong></p>
       <p>Статус: <span style={{ color: isWatered ? '#4ade80' : '#ef4444' }}>
         {isWatered ? "ПОЛИТО" : "ХОЧЕТ ПИТЬ"}
