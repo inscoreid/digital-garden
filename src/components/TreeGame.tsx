@@ -226,7 +226,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
         {miceCaught > 0 && <span style={{ float: 'right', color: '#a855f7' }}>Мышей поймано: {miceCaught}</span>}
       </div>
 
-      <div style={{ margin: '20px auto', position: 'relative', width: '512px', height: '512px' }}>
+      <div style={{ margin: '20px auto', position: 'relative', width: '256px', height: '256px' }}>
         {level > 0 ? (
           <>
             <img 
