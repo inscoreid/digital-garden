@@ -105,18 +105,32 @@ const [, setTreeClicks] = useState(0);
   }, [hasTree]);
 
   // Звук для дерева со 2-го раза и далее каждые 3
+// Звук для дерева: два обычных, затем один редкий
   const playTreeSound = () => {
     setTreeClicks(prev => {
       const newCount = prev + 1;
       
+      // Проверяем, наступил ли момент для звука вообще (2-й, 5-й, 8-й клик и т.д.)
       if ((newCount + 1) % 3 === 0) {
-        const audio = new Audio('/click.mp3');
-        audio.volume = 0.5;
-        audio.play().catch(() => {});
+        // Считаем, какой это по счету вызов звука (1, 2, 3...)
+        const soundTriggerCount = (newCount + 1) / 3;
+        
+        // Каждый 3-й вызов звука играем бонусный файл (то есть после двух обычных)
+        if (soundTriggerCount % 3 === 0) {
+          const audio = new Audio('/bonus.mp3'); // <-- ИМЯ ТВОЕГО НОВОГО ЗВУКА
+          audio.volume = 0.6;
+          audio.play().catch(() => {});
+        } else {
+          // Иначе играем стандартный звук
+          const audio = new Audio('/click.mp3');
+          audio.volume = 0.5;
+          audio.play().catch(() => {});
+        }
       }
       return newCount;
     });
     
+    // Визуальная анимация остается при каждом клике
     const treeImg = document.getElementById('pixel-tree-img');
     if (treeImg) {
       treeImg.style.transform = 'scale(0.95)';
