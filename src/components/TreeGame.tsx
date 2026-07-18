@@ -46,11 +46,11 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     }
   }, [hasTree, account, dailyEvent]);
 
-  // СЛОЖНАЯ ЛОГИКА РАНДОМНОЙ МЫШИ
+  // СЛОЖНАЯ ЛОГИКА РАНДОМНОЙ МЫШИ (Исправлены типы для Vite)
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    let sessionIntervalId: NodeJS.Timeout;
-    let hideTimeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let sessionIntervalId: ReturnType<typeof setInterval>;
+    let hideTimeoutId: ReturnType<typeof setTimeout>;
 
     const checkAndRunMouse = () => {
       const cooldownUntil = localStorage.getItem('mouseCooldownUntil');
