@@ -69,7 +69,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
           clearInterval(sessionIntervalId);
           const nextTime = Date.now() + 2 * 60 * 60 * 1000;
           localStorage.setItem('mouseCooldownUntil', nextTime.toString());
-          timeoutId = setTimeout(checkAndRunMouse, 2 * 60 * 60 * 1000);
+          timeoutId = setTimeout(checkAndRunMouse, 10 * 60 * 1000);
           return;
         }
 
