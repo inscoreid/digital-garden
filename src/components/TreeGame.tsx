@@ -16,8 +16,11 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   const [mousePos, setMousePos] = useState({ top: '50%', left: '50%' });
 
   // Состояние для кликов по дереву
-const [, setTreeClicks] = useState(0);
-
+const [clickState, setClickState] = useState({
+    count: 0,
+    target: Math.floor(Math.random() * 10) + 1 // Случайное число от 1 до 10
+  });
+  
   useEffect(() => {
     if (account) {
       const today = new Date().toISOString().split('T')[0];
@@ -106,31 +109,34 @@ const [, setTreeClicks] = useState(0);
 
   // Звук для дерева со 2-го раза и далее каждые 3
 // Звук для дерева: два обычных, затем один редкий
+  // Полностью рандомный звук (от 1 до 10 кликов)
   const playTreeSound = () => {
-    setTreeClicks(prev => {
-      const newCount = prev + 1;
+    setClickState(prev => {
+      const newCount = prev.count + 1;
       
-      // Проверяем, наступил ли момент для звука вообще (2-й, 5-й, 8-й клик и т.д.)
-      if ((newCount + 1) % 3 === 0) {
-        // Считаем, какой это по счету вызов звука (1, 2, 3...)
-        const soundTriggerCount = (newCount + 1) / 3;
+      // Если сделали нужное случайное количество кликов
+      if (newCount >= prev.target) {
         
-        // Каждый 3-й вызов звука играем бонусный файл (то есть после двух обычных)
-        if (soundTriggerCount % 3 === 0) {
-          const audio = new Audio('/bonus.mp3'); // <-- ИМЯ ТВОЕГО НОВОГО ЗВУКА
-          audio.volume = 0.6;
-          audio.play().catch(() => {});
-        } else {
-          // Иначе играем стандартный звук
-          const audio = new Audio('/click.mp3');
-          audio.volume = 0.5;
-          audio.play().catch(() => {});
-        }
+        // Бросаем виртуальную монетку (шанс 50/50)
+        const isBonus = Math.random() > 0.5; 
+        
+        // Выбираем файл на основе броска монетки
+        const audio = new Audio(isBonus ? '/bonus.mp3' : '/click.mp3');
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+
+        // Сбрасываем счетчик и сразу задаем новую случайную цель (от 1 до 10)
+        return {
+          count: 0,
+          target: Math.floor(Math.random() * 10) + 1
+        };
       }
-      return newCount;
+      
+      // Если цель еще не достигнута, просто запоминаем новый клик
+      return { ...prev, count: newCount };
     });
     
-    // Визуальная анимация остается при каждом клике
+    // Анимация дерева (сжатие) остается при каждом клике
     const treeImg = document.getElementById('pixel-tree-img');
     if (treeImg) {
       treeImg.style.transform = 'scale(0.95)';
