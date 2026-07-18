@@ -80,7 +80,7 @@ function App() {
             className="pixel-btn" 
             style={{ padding: '10px', fontSize: '10px', textDecoration: 'none', backgroundColor: '#000', color: '#fff', borderColor: '#333' }}
           >
-            🐦 X (Twitter)
+            X (Twitter)
           </a>
         </div>
       </header>
