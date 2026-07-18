@@ -209,7 +209,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
           style={{ 
             top: mousePos.top, 
             left: mousePos.left,
-            width: '48px', /* Размер мыши, можешь сделать больше/меньше */
+            width: '96px', /* Размер мыши, можешь сделать больше/меньше */
             height: 'auto',
             imageRendering: 'pixelated',
             cursor: 'crosshair'
