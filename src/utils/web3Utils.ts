@@ -2,38 +2,16 @@
 export const GAME_CONTRACT = '0x6CcF55750328a44B5Fa25299Cb2E433EB7bCBBd8'; 
 export const BASE_CHAIN_ID = '0x2105'; 
 
-// Новые точные селекторы
+// Точные селекторы из твоего смарт-контракта PixelTreeGame
 const SELECTORS = {
-  {
-	"095ea7b3": "approve(address,uint256)",
-	"70a08231": "balanceOf(address)",
-	"b2185bb1": "drawWinner()",
-	"2e519f90": "enterRaffle(uint256)",
-	"081812fc": "getApproved(uint256)",
-	"6465b6f6": "getFirstTreeId(address)",
-	"2bce3fbe": "getTreeLevel(uint256)",
-	"e985e9c5": "isApprovedForAll(address,address)",
-	"f4caee88": "isParticipating(address)",
-	"61c05ab6": "mintTree()",
-	"06fdde03": "name()",
-	"75794a3c": "nextTokenId()",
-	"8da5cb5b": "owner()",
-	"6352211e": "ownerOf(uint256)",
-	"35c1d349": "participants(uint256)",
-	"719ce73e": "prizePool()",
-	"715018a6": "renounceOwnership()",
-	"42842e0e": "safeTransferFrom(address,address,uint256)",
-	"b88d4fde": "safeTransferFrom(address,address,uint256,bytes)",
-	"a22cb465": "setApprovalForAll(address,bool)",
-	"01ffc9a7": "supportsInterface(bytes4)",
-	"95d89b41": "symbol()",
-	"c87b56dd": "tokenURI(uint256)",
-	"23b872dd": "transferFrom(address,address,uint256)",
-	"f2fde38b": "transferOwnership(address)",
-	"7a508022": "trees(uint256)",
-	"483fdd55": "userTrees(address,uint256)",
-	"998b723b": "waterTree(uint256)"
-}
+  balanceOf: '0x70a08231',       // balanceOf(address)
+  mintTree: '0x61c05ab6',        // mintTree()
+  waterTree: '0x998b723b',       // waterTree(uint256)
+  getTreeLevel: '0x2bce3fbe',    // getTreeLevel(uint256)
+  trees: '0x7a508022',           // trees(uint256)
+  enterRaffle: '0x2e519f90',     // enterRaffle(uint256)
+  getFirstTreeId: '0x6465b6f6',  // getFirstTreeId(address)
+  prizePool: '0x719ce73e'        // prizePool()
 };
 
 export const getProvider = () => {
