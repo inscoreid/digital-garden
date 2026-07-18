@@ -78,10 +78,13 @@ h1, h2, h3 {
   padding: 20px;
   margin: 20px 0;
   box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8); /* Тень делаем темнее */
-  /* Эффект дождя */
+} /* <-- ВОТ ЭТУ СКОБКУ ТЫ ПРОПУСТИЛ */
+
+/* Эффект дождя */
 .weather-rain {
   position: relative;
 }
+
 .weather-rain::after {
   content: '';
   position: absolute;
@@ -91,6 +94,12 @@ h1, h2, h3 {
   animation: rainDrop 0.5s linear infinite;
   pointer-events: none;
 }
+
+@keyframes rainDrop {
+  from { background-position: 0 0; }
+  to { background-position: 20px 100px; }
+}
+
 /* Бегающая мышь */
 .pixel-mouse {
   position: absolute;
@@ -101,9 +110,11 @@ h1, h2, h3 {
   z-index: 10;
   user-select: none;
 }
+
 .pixel-mouse:active {
   transform: scale(0.8);
 }
+
 @keyframes runMouse {
   0% { left: -10%; transform: scaleX(1); }
   49% { left: 110%; transform: scaleX(1); }
@@ -121,8 +132,8 @@ h1, h2, h3 {
   cursor: pointer;
   z-index: 5;
 }
+
 @keyframes wiggle {
   0%, 100% { transform: rotate(-10deg); }
   50% { transform: rotate(10deg); }
-}
 }
