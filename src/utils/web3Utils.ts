@@ -1,5 +1,5 @@
 // ВСТАВЬ СЮДА АДРЕС НОВОГО ЕДИНОГО КОНТРАКТА
-export const GAME_CONTRACT = '0x6CcF55750328a44B5Fa25299Cb2E433EB7bCBBd8'; 
+export const GAME_CONTRACT = '0xbE723878824B1acBd3098AaDaeaE0aB03394CBfe'; 
 export const BASE_CHAIN_ID = '0x2105'; 
 
 // Точные селекторы из твоего смарт-контракта PixelTreeGame
