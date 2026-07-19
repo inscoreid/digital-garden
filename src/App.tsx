@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Welcome } from './components/Welcome';
 import { TreeGame } from './components/TreeGame';
 import { BankPanel } from './components/BankPanel';
+import { WeatherBet } from './components/WeatherBet'; // Импортируем новый компонент
 import { getProvider, switchNetwork, BASE_CHAIN_ID, getTreeBalance } from './utils/web3Utils';
 
 function App() {
@@ -9,8 +10,11 @@ function App() {
   const [wrongNetwork, setWrongNetwork] = useState(false);
   const [hasTree, setHasTree] = useState(false);
   
-  // Состояние для отображения правил (открыты по умолчанию, если кошелек не подключен)
+  // Состояние для отображения правил
   const [showRules, setShowRules] = useState(true);
+  
+  // Новое состояние для переключения вкладок
+  const [activeTab, setActiveTab] = useState<'tree' | 'bet'>('tree');
 
   const checkState = async (addr: string) => {
     const provider = getProvider();
@@ -25,7 +29,7 @@ function App() {
     try {
       const balance = await getTreeBalance(addr);
       setHasTree(balance > 0);
-      if (balance > 0) setShowRules(false); // Прячем правила, если юзер уже играет
+      if (balance > 0) setShowRules(false); 
     } catch (e) {
       console.error("Ошибка получения NFT", e);
     }
@@ -110,8 +114,40 @@ function App() {
           <p style={{ fontSize: '12px', color: '#888', textAlign: 'right' }}>
             Кошелек: {account.slice(0, 6)}...{account.slice(-4)}
           </p>
-          <TreeGame account={account} hasTree={hasTree} onUpdate={() => checkState(account)} />
-          <BankPanel account={account} />
+
+          {/* МЕНЮ ВКЛАДОК */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', margin: '20px 0' }}>
+            <button 
+              className="pixel-btn" 
+              onClick={() => setActiveTab('tree')}
+              style={{ 
+                backgroundColor: activeTab === 'tree' ? '#4ade80' : '#374151',
+                padding: '10px 20px'
+              }}
+            >
+              Мое Дерево 🌲
+            </button>
+            <button 
+              className="pixel-btn" 
+              onClick={() => setActiveTab('bet')}
+              style={{ 
+                backgroundColor: activeTab === 'bet' ? '#a855f7' : '#374151',
+                padding: '10px 20px'
+              }}
+            >
+              Тотализатор 🔮
+            </button>
+          </div>
+
+          {/* ЛОГИКА ОТОБРАЖЕНИЯ ВКЛАДОК */}
+          {activeTab === 'tree' ? (
+            <>
+              <TreeGame account={account} hasTree={hasTree} onUpdate={() => checkState(account)} />
+              <BankPanel account={account} />
+            </>
+          ) : (
+            <WeatherBet account={account} />
+          )}
         </>
       )}
     </div>
