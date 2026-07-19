@@ -4,23 +4,25 @@ import { getTreeStats, mintTree, waterTree, getUserTreeId } from '../utils/web3U
 export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasTree: boolean, onUpdate: () => void }) => {
   const [level, setLevel] = useState<number>(0);
   const [isWatered, setIsWatered] = useState<boolean>(false);
+  const [lastWateredAt, setLastWateredAt] = useState<number>(0); // Новое состояние для времени
+  const [timeLeft, setTimeLeft] = useState<string | null>(null); // Строка таймера (00:00:00)
+  
   const [tokenId, setTokenId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   
   const [dailyEvent, setDailyEvent] = useState<'normal' | 'rain' | 'drought' | 'pests'>('normal');
   const [pestRemoved, setPestRemoved] = useState(false);
   
-  // Состояния для рандомной мыши
   const [miceCaught, setMiceCaught] = useState(0);
   const [mouseVisible, setMouseVisible] = useState(false);
   const [mousePos, setMousePos] = useState({ top: '50%', left: '50%' });
 
-  // Состояние для кликов по дереву (исправлена ошибка TS6133)
   const [, setClickState] = useState({
     count: 0,
     target: Math.floor(Math.random() * 10) + 1
   });
 
+  // Логика событий и погоды
   useEffect(() => {
     if (account) {
       const today = new Date().toISOString().split('T')[0];
@@ -38,6 +40,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     }
   }, [account]);
 
+  // Получение данных дерева с контракта
   useEffect(() => {
     if (hasTree) {
       getUserTreeId(account).then(id => {
@@ -46,13 +49,46 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
           getTreeStats(id).then(stats => {
             setLevel(stats.level);
             setIsWatered(stats.isWatered); 
+            // Сохраняем время последнего полива (если контракт его не отдает, ставим 0)
+            setLastWateredAt(stats.lastWateredAt || 0); 
           });
         }
       }).catch(console.error);
     }
   }, [hasTree, account, dailyEvent]);
 
-  // Логика рандомной мыши (с 10 минутным кулдауном)
+  // ТАЙМЕР ОБРАТНОГО ОТСЧЕТА ДО СЛЕДУЮЩЕГО ПОЛИВА
+  useEffect(() => {
+    // Если дерево не полито или мы не знаем время полива, таймер не нужен
+    if (!isWatered || lastWateredAt === 0) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      const now = Math.floor(Date.now() / 1000); // Текущее время в секундах
+      const cooldown = 24 * 60 * 60; // 24 часа в секундах
+      const nextWaterTime = lastWateredAt + cooldown;
+      const diff = nextWaterTime - now;
+
+      if (diff <= 0) {
+        // Если время вышло, меняем статус дерева прямо на сайте
+        setIsWatered(false);
+        setTimeLeft(null);
+        clearInterval(intervalId);
+      } else {
+        // Форматируем время в HH:MM:SS
+        const hours = Math.floor(diff / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (diff % 60).toString().padStart(2, '0');
+        setTimeLeft(`${hours}:${minutes}:${seconds}`);
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [isWatered, lastWateredAt]);
+
+  // Рандомная мышь
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
     let sessionIntervalId: ReturnType<typeof setInterval>;
@@ -73,7 +109,6 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
       const showMouse = () => {
         if (appearances <= 0) {
           clearInterval(sessionIntervalId);
-          // Ставим кулдаун на 10 минут
           const nextTime = Date.now() + 10 * 60 * 1000;
           localStorage.setItem('mouseCooldownUntil', nextTime.toString());
           timeoutId = setTimeout(checkAndRunMouse, 10 * 60 * 1000);
@@ -107,30 +142,19 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     };
   }, [hasTree]);
 
-  // Полностью рандомный звук (от 1 до 10 кликов)
   const playTreeSound = () => {
     setClickState(prev => {
       const newCount = prev.count + 1;
-      
       if (newCount >= prev.target) {
-        // Выбираем звук: 50% обычный, 50% бонусный
         const isBonus = Math.random() > 0.5; 
-        
         const audio = new Audio(isBonus ? '/bonus.mp3' : '/click.mp3');
         audio.volume = 0.5;
         audio.play().catch(() => {});
-
-        // Сбрасываем и загадываем новую цель (от 1 до 10)
-        return {
-          count: 0,
-          target: Math.floor(Math.random() * 10) + 1
-        };
+        return { count: 0, target: Math.floor(Math.random() * 10) + 1 };
       }
-      
       return { ...prev, count: newCount };
     });
     
-    // Анимация дерева
     const treeImg = document.getElementById('pixel-tree-img');
     if (treeImg) {
       treeImg.style.transform = 'scale(0.95)';
@@ -138,11 +162,9 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
     }
   };
 
-  // Отдельный звук для мыши
   const handleMouseCatch = () => {
     setMouseVisible(false); 
     setMiceCaught(prev => prev + 1);
-    
     const audio = new Audio('/squeak.mp3');
     audio.volume = 0.6;
     audio.play().catch(() => {});
@@ -199,7 +221,6 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
   return (
     <div className={`panel ${dailyEvent === 'rain' ? 'weather-rain' : ''}`} style={{ position: 'relative', overflow: 'hidden' }}>
       
-{/* Рандомно появляющаяся мышь (Картинка) */}
       {mouseVisible && (
         <img 
           src="/mouse.png"
@@ -209,7 +230,7 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
           style={{ 
             top: mousePos.top, 
             left: mousePos.left,
-            width: '96px', /* Размер мыши, можешь сделать больше/меньше */
+            width: '48px', 
             height: 'auto',
             imageRendering: 'pixelated',
             cursor: 'crosshair'
@@ -249,9 +270,18 @@ export const TreeGame = ({ account, hasTree, onUpdate }: { account: string, hasT
       </div>
 
       <p>Уровень: <strong>{level}</strong></p>
-      <p>Статус: <span style={{ color: isWatered ? '#4ade80' : '#ef4444' }}>
-        {isWatered ? "ПОЛИТО" : "ХОЧЕТ ПИТЬ"}
-      </span></p>
+      <p>
+        Статус: <span style={{ color: isWatered ? '#4ade80' : '#ef4444' }}>
+          {isWatered ? "ПОЛИТО" : "ХОЧЕТ ПИТЬ"}
+        </span>
+      </p>
+      
+      {/* Отображаем таймер, если дерево полито */}
+      {isWatered && timeLeft && (
+        <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>
+          Следующий полив через: <span style={{ color: '#eab308' }}>{timeLeft}</span>
+        </p>
+      )}
       
       {!isWatered && dailyEvent === 'pests' && !pestRemoved ? (
         <button className="pixel-btn" onClick={handleRemovePest} style={{ backgroundColor: '#ef4444' }}>
