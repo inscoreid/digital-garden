@@ -1,5 +1,5 @@
 // ВСТАВЬ СЮДА АДРЕС НОВОГО ЕДИНОГО КОНТРАКТА
-export const GAME_CONTRACT = '0xbE723878824B1acBd3098AaDaeaE0aB03394CBfe'; 
+export const GAME_CONTRACT = '0xBE4fdA3CAe2245DC55C309fbbeE15714aA7DB28D'; 
 export const BASE_CHAIN_ID = '0x2105'; 
 
 // Точные селекторы из твоего смарт-контракта PixelTreeGame
@@ -77,10 +77,13 @@ export const getTreeStats = async (tokenId: number) => {
   const lastWateredHex = cleanHex.substring(0, 64);
   const lastWatered = parseInt(lastWateredHex, 16);
 
+  // --- НОВАЯ ЛОГИКА ВРЕМЕНИ (ПО ДНЯМ UTC) ---
   const now = Math.floor(Date.now() / 1000);
-  const hoursSinceWatered = (now - lastWatered) / 3600;
+  const currentDay = Math.floor(now / 86400);
+  const lastWateredDay = Math.floor(lastWatered / 86400);
 
-  const isWatered = hoursSinceWatered < 24;
+  // Дерево считается политым, только если день полива совпадает с текущим днем
+  const isWatered = lastWateredDay === currentDay;
 
   return {
     isWatered,
