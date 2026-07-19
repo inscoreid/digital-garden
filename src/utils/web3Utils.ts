@@ -84,7 +84,7 @@ export const getTreeStats = async (tokenId: number) => {
 
   return {
     isWatered,
-    level: parseInt(levelHex, 16)
+    level: parseInt(levelHex, 16),
     lastWateredAt: lastWatered
   };
 };
