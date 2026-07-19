@@ -118,12 +118,12 @@ export const WeatherBet = ({ account }: { account: string }) => {
             <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>Шанс: {w.chance}</div>
           </div>
         ))}
-      </div>
+     </div>
 
       {/* Ввод суммы */}
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '5px', color: '#9ca3af' }}>Ставка (ETH):</label>
-        <input 
+     <input 
           type="number" 
           step="0.0001"
           value={betAmount}
@@ -132,10 +132,12 @@ export const WeatherBet = ({ account }: { account: string }) => {
             background: '#111827',
             border: '2px solid #374151',
             color: 'white',
-            padding: '10px',
-            width: '100px',
+            padding: '15px',       /* Сделали блок жирнее */
+            width: '200px',        /* Сделали блок шире (было 100px) */
+            fontSize: '1.5rem',    /* Увеличили сам шрифт цифр */
             textAlign: 'center',
-            fontFamily: 'inherit'
+            fontFamily: 'inherit',
+            outline: 'none'        /* Убрали стандартную обводку браузера при клике */
           }}
         />
       </div>
