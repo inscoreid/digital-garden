@@ -19,11 +19,11 @@ const SELECTORS = {
   prizePool: '0x719ce73e'
 };
 
-// Селекторы Тотализатора
+// --- Селекторы Тотализатора (Генерируются динамически!) ---
 const BET_SELECTORS = {
-  placeBet: '0x0d43a7a9',
-  claimReward: '0x84fa1754',
-  checkStatus: '0xc1be67c2'
+  placeBet: ethers.id("placeBet(uint8)").substring(0, 10),
+  claimReward: ethers.id("claimReward()").substring(0, 10),
+  checkStatus: ethers.id("checkStatus(address)").substring(0, 10)
 };
 
 export const getProvider = () => {
